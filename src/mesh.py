@@ -817,8 +817,12 @@ class CartesianMesh:
         patches = []
         for i in range(self.NumberOfElts):
             polygon = mpatches.Polygon(np.reshape(
-                self.VertexCoor[self.Connectivity[i], :], (4, 2)), True)
+                self.VertexCoor[self.Connectivity[i], :], (4, 2)), closed=True)
             patches.append(polygon)
+        # for i in range(self.NumberOfElts):
+        #     polygon = mpatches.Polygon(np.reshape(
+        #         self.VertexCoor[self.Connectivity[i], :], (4, 2)), True)
+        #     patches.append(polygon)
 
         if plot_prop is None:
             plot_prop = PlotProperties()
@@ -854,7 +858,6 @@ class CartesianMesh:
 
 
 # -----------------------------------------------------------------------------------------------------------------------
-
 
     def plot_3D(self, material_prop=None, backGround_param=None, fig=None, plot_prop=None):
         """
@@ -940,7 +943,6 @@ class CartesianMesh:
 
 
 # -----------------------------------------------------------------------------------------------------------------------
-
 
     def plot_scale_3d(self, ax, plot_prop):
         """
