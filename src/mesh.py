@@ -837,19 +837,33 @@ class CartesianMesh:
                             linewidth=plot_prop.lineWidth)
 
         # applying color according to the prescribed parameter
-        if material_prop is not None and backGround_param is not None:
-            min_value, max_value, parameter, colors = process_material_prop_for_display(material_prop,
-                                                                                        backGround_param)
-            # plotting color bar
-            sm = plt.cm.ScalarMappable(cmap=plot_prop.colorMap,
-                                       norm=plt.Normalize(vmin=min_value, vmax=max_value))
-            sm._A = []
-            clr_bar = fig.colorbar(sm, alpha=0.65)
-            clr_bar.set_label(parameter)
+        # if material_prop is not None and backGround_param is not None:
+        #     min_value, max_value, parameter, colors = process_material_prop_for_display(material_prop,
+        #                                                                                 backGround_param)
+        #     # plotting color bar
+        #     sm = plt.cm.ScalarMappable(cmap=plot_prop.colorMap,
+        #                                norm=plt.Normalize(vmin=min_value, vmax=max_value))
+        #     sm._A = []
+        #     clr_bar = fig.colorbar(sm, alpha=0.65)
+        #     clr_bar.set_label(parameter)
 
+        # else:
+        #     colors = np.full((self.NumberOfElts,), 0.5)
+        if material_prop is not None and backGround_param is not None:
+            min_value, max_value, parameter, colors = process_material_prop_for_display(
+                material_prop, backGround_param)
+
+            # plotting color bar
+            sm = plt.cm.ScalarMappable(
+                cmap=plot_prop.colorMap, norm=plt.Normalize(vmin=min_value, vmax=max_value))
+            sm._A = []
+
+            # Pass the 'ax' argument to explicitly specify the Axes
+            # Replace 'ax' with your actual Axes instance if available
+            clr_bar = fig.colorbar(sm, alpha=0.65, ax=ax)
+            clr_bar.set_label(parameter)
         else:
             colors = np.full((self.NumberOfElts,), 0.5)
-
         p.set_array(np.array(colors))
         ax.add_collection(p)
         plt.axis('equal')
@@ -858,6 +872,7 @@ class CartesianMesh:
 
 
 # -----------------------------------------------------------------------------------------------------------------------
+
 
     def plot_3D(self, material_prop=None, backGround_param=None, fig=None, plot_prop=None):
         """
@@ -943,6 +958,7 @@ class CartesianMesh:
 
 
 # -----------------------------------------------------------------------------------------------------------------------
+
 
     def plot_scale_3d(self, ax, plot_prop):
         """
@@ -1063,16 +1079,27 @@ class CartesianMesh:
 
         # add rectangle for each cell
         patch_list = []
+
         for i in elements:
             polygon = mpatches.Polygon(np.reshape(
-                self.VertexCoor[self.Connectivity[i], :], (4, 2)), True)
+                self.VertexCoor[self.Connectivity[i], :], (4, 2)), closed=True, edgecolor=plot_prop.lineColor, linewidth=plot_prop.lineWidth, picker=True, cmap=plot_prop.colorMap)
             patch_list.append(polygon)
+        # for i in elements:
+        #     polygon = mpatches.Polygon(np.reshape(
+        #         self.VertexCoor[self.Connectivity[i], :], (4, 2)), True)
+        #     patch_list.append(polygon)
 
-        p = PatchCollection(patch_list,
-                            cmap=plot_prop.colorMap,
-                            edgecolor=plot_prop.lineColor,
-                            linewidth=plot_prop.lineWidth,
-                            facecolors='none')
+        # p = PatchCollection(patch_list,
+        #                     cmap=plot_prop.colorMap,
+        #                     edgecolor=plot_prop.lineColor,
+        #                     linewidth=plot_prop.lineWidth,
+        #                     facecolors='none')
+        # alternative below given by gpt
+        # p = PatchCollection(patch_list, cmap=plot_prop.colorMap,
+        #                     edgecolor=plot_prop.lineColor, linewidth=plot_prop.lineWidth, picker=True)
+        p = PatchCollection(patch_list, cmap=plot_prop.colorMap,
+                            edgecolor=plot_prop.lineColor, linewidth=plot_prop.lineWidth, picker=True)
+        p.set_array(np.arange(len(patch_list)))
         ax.add_collection(p)
 
         if print_number:

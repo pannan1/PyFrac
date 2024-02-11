@@ -706,7 +706,7 @@ def injection_extended_footprint(w_k, Fr_lstTmStp, C, timeStep, Qin, mat_propert
         return exitstatus, Fr_lstTmStp
 
     # generate the InCrack array for the current front position
-    InCrack_k = np.zeros((Fr_lstTmStp.mesh.NumberOfElts,), dtype=np.int8)
+    InCrack_k = np.zeros((Fr_lstTmStp.mesh.NumberOfElts,), dtype=int)
     InCrack_k[Fr_lstTmStp.EltChannel] = 1
     InCrack_k[EltsTipNew] = 1  # EltsTipNew is new tip + fully traversed
 
@@ -1039,7 +1039,7 @@ def injection_extended_footprint(w_k, Fr_lstTmStp, C, timeStep, Qin, mat_propert
                            ] = Fr_kplus1.time - Fr_kplus1.l[new_tip] / Fr_kplus1.v[new_tip]
     Fr_kplus1.wHist = np.maximum(Fr_kplus1.w, Fr_lstTmStp.wHist)
     Fr_kplus1.closed = data[1]
-    tip_neg_rib = np.asarray([], dtype=np.int)
+    tip_neg_rib = np.asarray([], dtype=int)
     # adding tip cells with closed corresponding ribbon cells to the list of closed cells
     for i, elem in enumerate(Fr_kplus1.EltTip):
         if corr_ribbon[i] in Fr_kplus1.closed and elem not in Fr_kplus1.closed:
@@ -1963,7 +1963,7 @@ def time_step_explicit_front(Fr_lstTmStp, C, timeStep, Qin, mat_properties, flui
         return exitstatus, Fr_lstTmStp
 
     # generate the InCrack array for the current front position
-    InCrack_k = np.zeros((Fr_lstTmStp.mesh.NumberOfElts,), dtype=np.int8)
+    InCrack_k = np.zeros((Fr_lstTmStp.mesh.NumberOfElts,), dtype=int)
     InCrack_k[Fr_lstTmStp.EltChannel] = 1
     InCrack_k[EltsTipNew] = 1
 

@@ -30,7 +30,7 @@ def width_dist_product_HBF(s, *HB_args):
     if np.isnan(a):
         return np.nan
     w = brentq(TipAsym_res_Herschel_Bulkley_d_given, a, b, HB_args_ext)
-    
+
     return w * s
 
 
@@ -45,7 +45,7 @@ def width_HBF(s, *HB_args):
     if np.isnan(a):
         return np.nan
     w = brentq(TipAsym_res_Herschel_Bulkley_d_given, a, b, HB_args_ext)
-    
+
     return w
 
 
@@ -98,7 +98,7 @@ def TipAsym_MK_W_zrthOrder_Res(w, *args):
     (dist, Kprime, Eprime, muPrime, Cbar, Vel) = args
 
     if Kprime == 0:
-        return TipAsym_viscStor_Res(w, *args) #todo: make this
+        return TipAsym_viscStor_Res(w, *args)  # todo: make this
     if muPrime == 0:
         # return toughness dominated asymptote
         return dist - w ** 2 * (Eprime / Kprime) ** 2
@@ -153,9 +153,11 @@ def MomentsTipAssympGeneral(dist, Kprime, Eprime, muPrime, Cbar, Vel, stagnant, 
         a, b = FindBracket_w(dist, Kprime, Eprime, muPrime, Cbar, Vel, regime)
         try:
             if regime == 'U':
-                w = brentq(TipAsym_UniversalW_zero_Res, a, b, TipAsmptargs)  # root finding
+                w = brentq(TipAsym_UniversalW_zero_Res, a,
+                           b, TipAsmptargs)  # root finding
             else:
-                w = brentq(TipAsym_UniversalW_delt_Res, a, b, TipAsmptargs)  # root finding
+                w = brentq(TipAsym_UniversalW_delt_Res, a,
+                           b, TipAsmptargs)  # root finding
         except RuntimeError:
             M0, M1 = np.nan, np.nan
             return M0, M1
@@ -179,12 +181,12 @@ def MomentsTipAssympGeneral(dist, Kprime, Eprime, muPrime, Cbar, Vel, stagnant, 
     M1 = 2 * w * dist ** 2 / (5 + delt)
 
     if np.isnan(M0) or np.isnan(M1):
-       M0, M1 = np.nan, np.nan
+        M0, M1 = np.nan, np.nan
 
     return M0, M1
 
 
-#-----------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------
 
 def TipAsym_res_Herschel_Bulkley_d_given(w, *args):
     """Residual function for Herschel-Bulkley fluid model (see Besmertnykh and Dontsov, JAM 2019)"""
@@ -193,11 +195,13 @@ def TipAsym_res_Herschel_Bulkley_d_given(w, *args):
     alpha = -0.3107 * n + 1.9924
     X = 2 * Cbar * Eprime / np.sqrt(Vel) / Kprime
     Mprime = 2 ** (n + 1) * (2 * n + 1) ** n / n ** n * k
-    ell = (Kprime ** (n + 2) / Mprime / Vel ** n / Eprime ** (n + 1)) ** (2 / (2 - n))
+    ell = (Kprime ** (n + 2) / Mprime / Vel **
+           n / Eprime ** (n + 1)) ** (2 / (2 - n))
     xt = np.sqrt(dist / ell)
     T0t = T0 * 2 * Eprime * ell / Kprime ** 2
     wtTau = np.sqrt(4 * np.pi * T0t) * xt
-    wt = ((w * Eprime / Kprime / np.sqrt(dist)) ** alpha - wtTau ** alpha) ** (1 / alpha)
+    wt = ((w * Eprime / Kprime / np.sqrt(dist)) **
+          alpha - wtTau ** alpha) ** (1 / alpha)
 
     theta = 0.0452 * n ** 2 - 0.178 * n + 0.1753
     Vm = 1 - wt ** -((2 + n) / (1 + theta))
@@ -205,19 +209,20 @@ def TipAsym_res_Herschel_Bulkley_d_given(w, *args):
     dm = (2 - n) / (2 + n)
     dmt = (2 - n) / (2 + 2 * n)
     Bm = (2 * (2 + n) ** 2 / n * np.tan(np.pi * n / (2 + n))) ** (1 / (2 + n))
-    Bmt = (64 * (1 + n) ** 2 / (3 * n * (4 + n)) * np.tan(3 * np.pi * n / (4 * (1 + n)))) ** (1 / (2 + 2 * n))
+    Bmt = (64 * (1 + n) ** 2 / (3 * n * (4 + n)) *
+           np.tan(3 * np.pi * n / (4 * (1 + n)))) ** (1 / (2 + 2 * n))
 
     dt1 = dmt * dm * Vmt * Vm * \
-          (Bm ** ((2 + n) / n) * Vmt ** ((1 + theta) / n) + X / wt * Bmt ** (2 * (1 + n) / n) * Vm ** (
-          (1 + theta) / n)) / \
-          (dmt * Vmt * Bm ** ((2 + n) / n) * Vmt ** ((1 + theta) / n) +
-           dm * Vm * X / wt * Bmt ** (2 * (1 + n) / n) * Vm ** ((1 + theta) / n))
+        (Bm ** ((2 + n) / n) * Vmt ** ((1 + theta) / n) + X / wt * Bmt ** (2 * (1 + n) / n) * Vm ** (
+            (1 + theta) / n)) / \
+        (dmt * Vmt * Bm ** ((2 + n) / n) * Vmt ** ((1 + theta) / n) +
+         dm * Vm * X / wt * Bmt ** (2 * (1 + n) / n) * Vm ** ((1 + theta) / n))
 
     return xt ** ((2 - n) / (1 + theta)) - dt1 * wt ** ((2 + n) / (1 + theta)) * (dm ** (1 + theta) * Bm ** (2 + n) +
-                    dmt ** (1 + theta) * Bmt ** (2 * (1 + n)) * ((1 + X / wt) ** n - 1)) ** (-1 / (1 + theta))
+                                                                                  dmt ** (1 + theta) * Bmt ** (2 * (1 + n)) * ((1 + X / wt) ** n - 1)) ** (-1 / (1 + theta))
 
 
-#-----------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------
 
 def MomentsTipAssymp_HBF_approx(s, *HB_args):
     """Approximate moments of the Herschel-Bulkley fluid. Delta is taken to be 1/6."""
@@ -234,12 +239,12 @@ def MomentsTipAssymp_HBF_approx(s, *HB_args):
     M1 = 2 * w * s ** 2 / (5 + 1 / 6)
 
     if np.isnan(M0) or np.isnan(M1):
-       M0, M1 = np.nan, np.nan
+        M0, M1 = np.nan, np.nan
 
     return M0, M1
 
 
-#-----------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------
 
 def Pdistance(x, y, slope, intercpt):
     """distance of a point from a line"""
@@ -247,7 +252,7 @@ def Pdistance(x, y, slope, intercpt):
     return (slope * x - y + intercpt) / (slope ** 2 + 1) ** 0.5
 
 
-#-----------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------
 
 def VolumeTriangle(dist, *param):
     """
@@ -286,45 +291,51 @@ def VolumeTriangle(dist, *param):
 
     elif regime == 'Mt':
         return 256 / 273 / (15 * np.tan(np.pi / 8)) ** 0.25 * (
-                                    Cbar * fluid_prop.muPrime / Eprime) ** 0.25 * em * Vel ** 0.125 * dist ** (21 / 8)
+            Cbar * fluid_prop.muPrime / Eprime) ** 0.25 * em * Vel ** 0.125 * dist ** (21 / 8)
 
     elif regime == 'U' or regime == 'U1':
-        if Cbar == 0 and Kprime == 0 and not stagnant: # if fully viscosity dominated
+        if Cbar == 0 and Kprime == 0 and not stagnant:  # if fully viscosity dominated
             return 0.7081526678 * (Vel * fluid_prop.muPrime / Eprime) ** (1 / 3) * em * dist ** (8 / 3)
-        (M0, M1) = MomentsTipAssympGeneral(dist, Kprime, Eprime, fluid_prop.muPrime, Cbar, Vel, stagnant, KIPrime, regime)
+        (M0, M1) = MomentsTipAssympGeneral(dist, Kprime, Eprime,
+                                           fluid_prop.muPrime, Cbar, Vel, stagnant, KIPrime, regime)
         return em * (dist * M0 - M1)
 
     elif regime == 'MK':
         return (3.925544049000839e-9 * em * Kprime * (
-        1.7320508075688772 * Kprime ** 9 * (Kprime ** 6 - 1872. * dist * Eprime ** 4 * fluid_prop.muPrime ** 2 * Vel ** 2) + (
-        1. + (31.17691453623979 * (dist) ** 0.5 * Eprime ** 2 * fluid_prop.muPrime * Vel) / Kprime ** 3) ** 0.3333333333333333 * (
-        -1.7320508075688772 * Kprime ** 15 + 18. * (
-        dist) ** 0.5 * Eprime ** 2 * Kprime ** 12 * fluid_prop.muPrime * Vel + 2868.2761373340604 * dist * Eprime ** 4 *
-        Kprime ** 9 * fluid_prop.muPrime ** 2 * Vel ** 2 - 24624. * dist ** 1.5 * Eprime ** 6 * Kprime ** 6 * fluid_prop.muPrime ** 3 *
-        Vel ** 3 + 464660.73424811783 * dist ** 2 * Eprime ** 8 * Kprime ** 3 * fluid_prop.muPrime ** 4 * Vel ** 4 + 5.7316896e7
-        * dist ** 2.5 * Eprime ** 10 * fluid_prop.muPrime ** 5 * Vel ** 5))) / (Eprime ** 11 * fluid_prop.muPrime ** 5 * Vel ** 5)
+            1.7320508075688772 * Kprime ** 9 * (Kprime ** 6 - 1872. * dist * Eprime ** 4 * fluid_prop.muPrime ** 2 * Vel ** 2) + (
+                1. + (31.17691453623979 * (dist) ** 0.5 * Eprime ** 2 * fluid_prop.muPrime * Vel) / Kprime ** 3) ** 0.3333333333333333 * (
+                -1.7320508075688772 * Kprime ** 15 + 18. * (
+                    dist) ** 0.5 * Eprime ** 2 * Kprime ** 12 * fluid_prop.muPrime * Vel + 2868.2761373340604 * dist * Eprime ** 4 *
+                Kprime ** 9 * fluid_prop.muPrime ** 2 * Vel ** 2 - 24624. * dist ** 1.5 * Eprime ** 6 * Kprime ** 6 * fluid_prop.muPrime ** 3 *
+                Vel ** 3 + 464660.73424811783 * dist ** 2 * Eprime ** 8 *
+                    Kprime ** 3 * fluid_prop.muPrime ** 4 * Vel ** 4 + 5.7316896e7
+                * dist ** 2.5 * Eprime ** 10 * fluid_prop.muPrime ** 5 * Vel ** 5))) / (Eprime ** 11 * fluid_prop.muPrime ** 5 * Vel ** 5)
 
     elif 'MDR' in regime:
         density = 1000
         return (0.0885248 * dist ** 2.74074 * em * Vel ** 0.481481 * fluid_prop.muPrime ** 0.259259 * density ** 0.111111
-         ) / Eprime ** 0.37037
-    
+                ) / Eprime ** 0.37037
+
     elif regime in ['HBF', 'HBF_aprox']:
-        args_HB = (dist, Kprime, Eprime, fluid_prop.muPrime, Cbar, Vel, fluid_prop.n, fluid_prop.k, fluid_prop.T0)
+        args_HB = (dist, Kprime, Eprime, fluid_prop.muPrime, Cbar,
+                   Vel, fluid_prop.n, fluid_prop.k, fluid_prop.T0)
         (M0, M1) = MomentsTipAssymp_HBF_approx(dist, *args_HB)
         return em * (dist * M0 - M1)
 
     elif regime == 'HBF_num_quad':
-        args_HB = (dist, Kprime, Eprime, fluid_prop.muPrime, Cbar, Vel, fluid_prop.n, fluid_prop.k, fluid_prop.T0)
+        args_HB = (dist, Kprime, Eprime, fluid_prop.muPrime, Cbar,
+                   Vel, fluid_prop.n, fluid_prop.k, fluid_prop.T0)
         return em * quad(width_dist_product_HBF, 0, dist, args_HB)[0]
-    
+
     elif regime in ['PLF', 'PLF_aprox']:
-        args_PLF = (dist, Kprime, Eprime, fluid_prop.muPrime, Cbar, Vel, fluid_prop.n, fluid_prop.k, 0.)
+        args_PLF = (dist, Kprime, Eprime, fluid_prop.muPrime,
+                    Cbar, Vel, fluid_prop.n, fluid_prop.k, 0.)
         (M0, M1) = MomentsTipAssymp_HBF_approx(dist, *args_PLF)
         return em * (dist * M0 - M1)
 
     elif regime == 'PLF_num_quad':
-        args_PLF = (dist, Kprime, Eprime, fluid_prop.muPrime, Cbar, Vel, fluid_prop.n, fluid_prop.k, 0.)
+        args_PLF = (dist, Kprime, Eprime, fluid_prop.muPrime,
+                    Cbar, Vel, fluid_prop.n, fluid_prop.k, 0.)
         return em * quad(width_dist_product_HBF, 0, dist, args_PLF)[0]
 
     elif regime == 'PLF_M':
@@ -332,12 +343,12 @@ def VolumeTriangle(dist, *param):
         k = fluid_prop.k
         Mprime = 2**(n + 1) * (2 * n + 1)**n / n**n * k
         Bm = (2 * (2 + n)**2 / n * np.tan(np.pi * n / (2 + n)))**(1 / (2 + n))
-        
+
         return em * Bm * (Mprime * Vel**n / Eprime) ** (1 / (2 + n)) * dist ** ((4 + n) / (2 + n)) * \
-                dist * (2 + n) * (1 / (4 + n) - 1 / (6 + 2 *n)) 
+            dist * (2 + n) * (1 / (4 + n) - 1 / (6 + 2 * n))
 
 
-#-----------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------
 
 def Area(dist, *param):
     """Gives Area under the tip depending on the regime identifier ;  
@@ -374,55 +385,60 @@ def Area(dist, *param):
 
     elif regime == 'Mt':
         return 32 / 13 / (15 * np.tan(np.pi / 8)) ** 0.25 * (Cbar * fluid_prop.muPrime / Eprime) ** 0.25 * Vel ** 0.125 * dist ** (
-        13 / 8)
+            13 / 8)
 
     elif regime == 'U' or regime == 'U1':
         if Cbar == 0 and Kprime == 0 and not stagnant:  # if fully viscosity dominated
             return 1.8884071141 * (Vel * fluid_prop.muPrime / Eprime) ** (1 / 3) * dist ** (5 / 3)
-        (M0, M1) = MomentsTipAssympGeneral(dist, Kprime, Eprime, fluid_prop.muPrime, Cbar, Vel, stagnant, KIPrime, regime)
+        (M0, M1) = MomentsTipAssympGeneral(dist, Kprime, Eprime,
+                                           fluid_prop.muPrime, Cbar, Vel, stagnant, KIPrime, regime)
         return M0
 
     elif regime == 'MK':
         return (7.348618459729571e-6 * Kprime * (-1.7320508075688772 * Kprime ** 9 +
                 (1. + (31.17691453623979 * (dist) ** 0.5 * Eprime ** 2 * fluid_prop.muPrime * Vel) / Kprime ** 3) ** 0.3333333333333333 * (
-                1.7320508075688772 * Kprime ** 9 - 18. * (dist) ** 0.5 * Eprime ** 2 * Kprime ** 6 * fluid_prop.muPrime * Vel + (
-                374.12297443487745 * dist * Eprime ** 4 * Kprime ** 3 * fluid_prop.muPrime ** 2 * Vel ** 2) + (
-                81648. * dist ** 1.5 * Eprime ** 6 * fluid_prop.muPrime ** 3 * Vel ** 3)))) / (
-                Eprime ** 7 * fluid_prop.muPrime ** 3 * Vel ** 3)
+                    1.7320508075688772 * Kprime ** 9 - 18. * (dist) ** 0.5 * Eprime ** 2 * Kprime ** 6 * fluid_prop.muPrime * Vel + (
+                        374.12297443487745 * dist * Eprime ** 4 * Kprime ** 3 * fluid_prop.muPrime ** 2 * Vel ** 2) + (
+                        81648. * dist ** 1.5 * Eprime ** 6 * fluid_prop.muPrime ** 3 * Vel ** 3)))) / (
+            Eprime ** 7 * fluid_prop.muPrime ** 3 * Vel ** 3)
 
     elif 'MDR' in regime:
         density = 1000
         return (0.242623 * dist ** 1.74074 * Vel ** 0.481481 * fluid_prop.muPrime ** 0.259259 * density ** 0.111111
-         ) / Eprime ** 0.37037
-    
+                ) / Eprime ** 0.37037
+
     elif regime in ['HBF', 'HBF_aprox']:
-        args_HB = (dist, Kprime, Eprime, fluid_prop.muPrime, Cbar, Vel, fluid_prop.n, fluid_prop.k, fluid_prop.T0)
+        args_HB = (dist, Kprime, Eprime, fluid_prop.muPrime, Cbar,
+                   Vel, fluid_prop.n, fluid_prop.k, fluid_prop.T0)
         (M0, M1) = MomentsTipAssymp_HBF_approx(dist, *args_HB)
         return M0
-    
+
     elif regime == 'HBF_num_quad':
-        args_HB = (dist, Kprime, Eprime, fluid_prop.muPrime, Cbar, Vel, fluid_prop.n, fluid_prop.k, fluid_prop.T0)
+        args_HB = (dist, Kprime, Eprime, fluid_prop.muPrime, Cbar,
+                   Vel, fluid_prop.n, fluid_prop.k, fluid_prop.T0)
         return quad(width_HBF, 0, dist, args_HB)[0]
-    
+
     elif regime in ['PLF', 'PLF_aprox']:
-        args_PLF = (dist, Kprime, Eprime, fluid_prop.muPrime, Cbar, Vel, fluid_prop.n, fluid_prop.k, 0.)
+        args_PLF = (dist, Kprime, Eprime, fluid_prop.muPrime,
+                    Cbar, Vel, fluid_prop.n, fluid_prop.k, 0.)
         (M0, M1) = MomentsTipAssymp_HBF_approx(dist, *args_PLF)
         return M0
-    
+
     elif regime == 'PLF_num_quad':
-        args_PLF = (dist, Kprime, Eprime, fluid_prop.muPrime, Cbar, Vel, fluid_prop.n, fluid_prop.k, 0.)
+        args_PLF = (dist, Kprime, Eprime, fluid_prop.muPrime,
+                    Cbar, Vel, fluid_prop.n, fluid_prop.k, 0.)
         return quad(width_HBF, 0, dist, args_PLF)[0]
-        
+
     elif regime == 'PLF_M':
         n = fluid_prop.n
         k = fluid_prop.k
         Mprime = 2**(n + 1) * (2 * n + 1)**n / n**n * k
         Bm = (2 * (2 + n)**2 / n * np.tan(np.pi * n / (2 + n)))**(1 / (2 + n))
-        
-        return Bm * (Mprime * Vel**n / Eprime) ** (1 / (2 + n)) * ((2 + n) * dist**((4 + n)/(2 + n)))/(4 + n)
-        
 
-#-----------------------------------------------------------------------------------------------------------------------
+        return Bm * (Mprime * Vel**n / Eprime) ** (1 / (2 + n)) * ((2 + n) * dist**((4 + n)/(2 + n)))/(4 + n)
+
+
+# -----------------------------------------------------------------------------------------------------------------------
 
 def Integral_over_cell(EltTip, alpha, l, mesh, function, frac=None, mat_prop=None, fluid_prop=None, Vel=None,
                        Kprime=None, Eprime=None, Cprime=None, stagnant=None, KIPrime=None, dt=None, arrival_t=None, projMethod=None):
@@ -481,7 +497,7 @@ def Integral_over_cell(EltTip, alpha, l, mesh, function, frac=None, mat_prop=Non
     """
     log = logging.getLogger('PyFrac.Integral_over_cell')
     # Pass None as dummy if parameter is not required
-    dummy = np.full((alpha.size,),None)
+    dummy = np.full((alpha.size,), None)
 
     if stagnant is None:
         stagnant = dummy
@@ -515,12 +531,13 @@ def Integral_over_cell(EltTip, alpha, l, mesh, function, frac=None, mat_prop=Non
         arrival_t = dummy
 
     integral = np.zeros((len(l),), float)
-    i=0
+    i = 0
     while i < len(l):
 
         if abs(alpha[i]) >= 1e-8 and abs(alpha[i] - np.pi / 2) >= 1e-8:
-            m = 1 / (np.sin(alpha[i]) * np.cos(alpha[i]))  # the m parameter (see e.g. A. Pierce 2015)
-        else : 
+            # the m parameter (see e.g. A. Pierce 2015)
+            m = 1 / (np.sin(alpha[i]) * np.cos(alpha[i]))
+        else:
             m = np.inf
         # packing parameters to pass
         param_pack = (function, fluid_prop, Kprime[i], Eprime[i], Cprime[i], Vel[i], stagnant[i], KIPrime[i],
@@ -533,7 +550,8 @@ def Integral_over_cell(EltTip, alpha, l, mesh, function, frac=None, mat_prop=Non
                 integral[i] = Area(l[i], *param_pack) * mesh.hy
             else:
                 # the front has surpassed this cell.
-                integral[i] = (Area(l[i], *param_pack) - Area(l[i] - mesh.hx, *param_pack)) * mesh.hy
+                integral[i] = (Area(l[i], *param_pack) -
+                               Area(l[i] - mesh.hx, *param_pack)) * mesh.hy
 
         elif abs(alpha[i] - np.pi / 2) < 1e-8:
             # the angle inscribed by the perpendicular is 90 degrees
@@ -542,10 +560,12 @@ def Integral_over_cell(EltTip, alpha, l, mesh, function, frac=None, mat_prop=Non
                 integral[i] = Area(l[i], *param_pack) * mesh.hx
             else:
                 # the front has surpassed this cell.
-                integral[i] = (Area(l[i], *param_pack) - Area(l[i] - mesh.hy, *param_pack)) * mesh.hx
+                integral[i] = (Area(l[i], *param_pack) -
+                               Area(l[i] - mesh.hy, *param_pack)) * mesh.hx
         else:
-            yIntrcpt = l[i] / np.cos(np.pi / 2 - alpha[i]) # Y intercept of the front line
-            grad = -1 / np.tan(alpha[i]) # gradient of the front line
+            # Y intercept of the front line
+            yIntrcpt = l[i] / np.cos(np.pi / 2 - alpha[i])
+            grad = -1 / np.tan(alpha[i])  # gradient of the front line
 
             # integral of the triangle made by the front by intersecting the x and y directional lines of the cell
             TriVol = VolumeTriangle(l[i], *param_pack)
@@ -576,17 +596,20 @@ def Integral_over_cell(EltTip, alpha, l, mesh, function, frac=None, mat_prop=Non
 
             integral[i] = TriVol - UpTriVol - RtTriVol + IntrsctTri
 
-        if projMethod == 'LS_continousfront' and function == 'A' and integral[i]/ mesh.EltArea > 1.+1e-4:
-            log.debug("Recomputing Integral over cell (filling fraction) --> if something else goes wrong the tip volume might be the problem")
-            if abs(alpha[i]) < np.pi / 2 : alpha[i]=0
-            else : alpha[i] = np.pi / 2
+        if projMethod == 'LS_continousfront' and function == 'A' and integral[i] / mesh.EltArea > 1.+1e-4:
+            log.debug(
+                "Recomputing Integral over cell (filling fraction) --> if something else goes wrong the tip volume might be the problem")
+            if abs(alpha[i]) < np.pi / 2:
+                alpha[i] = 0
+            else:
+                alpha[i] = np.pi / 2
         else:
             i = i + 1
 
     return integral
 
 
-#-----------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------
 
 def FindBracket_w(dist, Kprime, Eprime, muPrime, Cprime, Vel, regime):
     """
@@ -603,17 +626,18 @@ def FindBracket_w(dist, Kprime, Eprime, muPrime, Cprime, Vel, regime):
 
     wk = dist ** 0.5 * Kprime / Eprime
     wmtld = 4 / (15 ** (1 / 4) * (2 ** 0.5 - 1) ** (1 / 4)) * \
-                        (2 * Cprime * Vel ** (1/2) * muPrime / Eprime) ** (1/4)\
-                        * dist ** (5/8)
-    wm = 2 ** (1 / 3) * 3 ** (5 / 6) * (Vel * muPrime / Eprime) ** (1/3) * dist ** (2/3)
+        (2 * Cprime * Vel ** (1/2) * muPrime / Eprime) ** (1/4)\
+        * dist ** (5/8)
+    wm = 2 ** (1 / 3) * 3 ** (5 / 6) * \
+        (Vel * muPrime / Eprime) ** (1/3) * dist ** (2/3)
 
-    if np.nanmin([wk, wmtld, wm]) > np.finfo(np.float).eps:
+    if np.nanmin([wk, wmtld, wm]) > np.finfo(float).eps:
         b = 0.95 * np.nanmin([wk, wmtld, wm])
         a = 1.05 * np.nanmax([wk, wmtld, wm])
-    elif np.nanmin([wmtld, wm]) > np.finfo(np.float).eps:
+    elif np.nanmin([wmtld, wm]) > np.finfo(float).eps:
         b = 0.95 * np.nanmin([wmtld, wm])
         a = 1.05 * np.nanmax([wmtld, wm])
-    elif np.nanmin([wk, wm]) > np.finfo(np.float).eps:
+    elif np.nanmin([wk, wm]) > np.finfo(float).eps:
         b = 0.95 * np.nanmin([wk, wm])
         a = 1.05 * np.nanmax([wk, wm])
     else:
@@ -642,7 +666,7 @@ def FindBracket_w(dist, Kprime, Eprime, muPrime, Cprime, Vel, regime):
     return a, b
 
 
-#-----------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------
 
 def FindBracket_w_HB(a, b, *args):
     """
@@ -653,7 +677,8 @@ def FindBracket_w_HB(a, b, *args):
     ((l, Kprime, Eprime, muPrime, Cbar, Vel, n, k, T0), dist) = args
 
     Mprime = 2 ** (n + 1) * (2 * n + 1) ** n / n ** n * k
-    ell = (Kprime ** (n + 2) / Mprime / Vel ** n / Eprime ** (n + 1)) ** (2 / (2 - n))
+    ell = (Kprime ** (n + 2) / Mprime / Vel **
+           n / Eprime ** (n + 1)) ** (2 / (2 - n))
     xt = np.sqrt(dist / ell)
     T0t = T0 * 2 * Eprime * ell / Kprime / Kprime
     alpha = -0.3107 * n + 1.9924
@@ -676,11 +701,11 @@ def FindBracket_w_HB(a, b, *args):
         log.debug("res is nan!")
         a = np.nan
         b = np.nan
-        
+
     return a, b
 
 
-#-------------------------------------------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------------------------------------
 
 def find_corresponding_ribbon_cell(tip_cells, alpha, zero_vertex, mesh):
     """
@@ -711,28 +736,32 @@ def find_corresponding_ribbon_cell(tip_cells, alpha, zero_vertex, mesh):
     for i in range(len(tip_cells)):
         if alpha[i] == 0:
             if zero_vertex[i] == 0 or zero_vertex[i] == 3:
-                corr_ribbon[i] = mesh.NeiElements[tip_cells[i], 0] # B
+                corr_ribbon[i] = mesh.NeiElements[tip_cells[i], 0]  # B
             elif zero_vertex[i] == 1 or zero_vertex[i] == 2:
-                corr_ribbon[i] = mesh.NeiElements[tip_cells[i], 1] # F
+                corr_ribbon[i] = mesh.NeiElements[tip_cells[i], 1]  # F
         elif alpha[i] == np.pi/2:
             if zero_vertex[i] == 0 or zero_vertex[i] == 1:
-                corr_ribbon[i] = mesh.NeiElements[tip_cells[i], 2] # H
+                corr_ribbon[i] = mesh.NeiElements[tip_cells[i], 2]  # H
             elif zero_vertex[i] == 3 or zero_vertex[i] == 2:
-                corr_ribbon[i] = mesh.NeiElements[tip_cells[i], 3] # D
+                corr_ribbon[i] = mesh.NeiElements[tip_cells[i], 3]  # D
         else:
             if zero_vertex[i] == 0:
-                corr_ribbon[i] = mesh.NeiElements[mesh.NeiElements[tip_cells[i], 2], 0] # A
+                # A
+                corr_ribbon[i] = mesh.NeiElements[mesh.NeiElements[tip_cells[i], 2], 0]
             elif zero_vertex[i] == 1:
-                corr_ribbon[i] = mesh.NeiElements[mesh.NeiElements[tip_cells[i], 2], 1] # G
+                # G
+                corr_ribbon[i] = mesh.NeiElements[mesh.NeiElements[tip_cells[i], 2], 1]
             elif zero_vertex[i] == 2:
-                corr_ribbon[i] = mesh.NeiElements[mesh.NeiElements[tip_cells[i], 3], 1] # E
+                # E
+                corr_ribbon[i] = mesh.NeiElements[mesh.NeiElements[tip_cells[i], 3], 1]
             elif zero_vertex[i] == 3:
-                corr_ribbon[i] = mesh.NeiElements[mesh.NeiElements[tip_cells[i], 3], 0] # C
+                # C
+                corr_ribbon[i] = mesh.NeiElements[mesh.NeiElements[tip_cells[i], 3], 0]
 
     return corr_ribbon
 
 
-#-----------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------
 
 def leak_off_stagnant_tip(Elts, l, alpha, vrtx_arr_time, current_time, Cprime, time_step, mesh):
     """
@@ -747,6 +776,7 @@ def leak_off_stagnant_tip(Elts, l, alpha, vrtx_arr_time, current_time, Cprime, t
     area = Integral_over_cell(Elts, alpha, l, mesh, 'A')
     t_since_arrival_lstTS = t_since_arrival - time_step
     t_since_arrival_lstTS[t_since_arrival_lstTS < 0] = 0
-    LkOff = 2 * Cprime[Elts] * (t_since_arrival ** 0.5 - t_since_arrival_lstTS ** 0.5) * area
+    LkOff = 2 * Cprime[Elts] * (t_since_arrival **
+                                0.5 - t_since_arrival_lstTS ** 0.5) * area
 
     return LkOff
