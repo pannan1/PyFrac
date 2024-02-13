@@ -19,19 +19,19 @@ from properties import MaterialProperties, FluidProperties, InjectionProperties,
 # creating mesh
 Mesh = CartesianMesh(90, 66, 41, 27)
 
-# solid properties
-nu = 0.4                            # Poisson's ratio
-youngs_mod = 4e10                   # Young's modulus
-Eprime = youngs_mod / (1 - nu ** 2)  # plane strain modulus
-K_Ic = 5.0e5                        # fracture toughness
+# solid properties, take from QW main fault
+nu = 0.29                          # Poisson's ratio
+youngs_mod = 2e10                   # Young's modulus
+Eprime = youngs_mod / (1 - nu ** 2)  # plane strain modulus, not changed
+K_Ic = 5.0e5                        # fracture toughness , havent changed
 
 
 def sigmaO_func(x, y):
     """ This function provides the confining stress over the domain"""
     if 0 < y < 7:
-        return 5.25e6
+        return 6.2e6
     elif y < -50:
-        return 5.25e6
+        return 4.5e6
     else:
         return 5.e6
 
@@ -71,7 +71,7 @@ simulProp.tmStpPrefactor = np.asarray([[0, 6000], [0.8, 0.4]])
 simulProp.maxSolverItrs = 120
 
 # initialization parameters
-Fr_geometry = Geometry('radial', radius=20)
+Fr_geometry = Geometry('radial', radius=10)
 init_param = InitializationParameters(Fr_geometry, regime='M')
 
 # creating fracture object

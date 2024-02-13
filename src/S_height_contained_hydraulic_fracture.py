@@ -16,11 +16,11 @@ from mesh import CartesianMesh
 # creating mesh
 Mesh = CartesianMesh(20, 2.3, 71, 15)
 
-# solid properties
-nu = 0.4                            # Poisson's ratio
-youngs_mod = 3.3e10                 # Young's modulus
-Eprime = youngs_mod / (1 - nu ** 2)  # plane strain modulus
-K_Ic = 0                            # fracture toughness of the material
+# solid properties, take from QW main fault
+nu = 0.29                          # Poisson's ratio
+youngs_mod = 2e10                   # Young's modulus
+Eprime = youngs_mod / (1 - nu ** 2)  # plane strain modulus, not changed
+K_Ic = 5.0e5                        # fracture toughness , havent changed
 
 
 def sigmaO_func(x, y):
@@ -40,7 +40,7 @@ Solid = MaterialProperties(Mesh,
 Fluid = FluidProperties(viscosity=1.1e-3)
 
 # injection parameters
-Q0 = 0.001  # injection rate
+Q0 = 0.0001  # injection rate
 Injection = InjectionProperties(Q0, Mesh)
 
 # simulation properties
@@ -52,7 +52,7 @@ simulProp.set_outputFolder("./Data/height_contained")
 simulProp.plotVar = ['footprint']       # plotting footprint
 
 # initializing fracture
-Fr_geometry = Geometry(shape='radial', radius=1.4)
+Fr_geometry = Geometry(shape='radial', radius=1.8)
 init_param = InitializationParameters(Fr_geometry, regime='M')
 
 # creating fracture object
